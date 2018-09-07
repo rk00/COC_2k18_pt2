@@ -31,11 +31,11 @@ def log(what):
     l_s = 0
     if os.path.exists(EMU_LOGS_PATH + '/log_' + str(logs_count)):
         l_s = os.path.getsize(EMU_LOGS_PATH + '/log_' + str(logs_count))
-    if l_s > 1000000:
+    if l_s > 5000000:
         logs_count += 1
     l_f = EMU_LOGS_PATH + '/log_' + str(logs_count)
     with open(l_f, 'a+') as f:
-        f.write(what)
+        f.write(what + '\n')
 
 
 def hook_code(uc, address, size, user_data):
