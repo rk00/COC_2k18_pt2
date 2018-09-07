@@ -1,5 +1,6 @@
 import binascii
 import os
+import shutil
 
 from capstone import *
 from hexdump import hexdump
@@ -15,14 +16,32 @@ VFP = "4ff4700001ee500fbff36f8f4ff08043e8ee103a"
 memcpy = [0x00208924, 0x00263382]
 memclr = [0x00208944, 0x00208950, 0x00208958, 0x002632C6]
 
-trace_inst = False
+EMU_LOGS_PATH = 'emu_logs'
+
+
+if os.path.exists(EMU_LOGS_PATH):
+    shutil.rmtree(EMU_LOGS_PATH)
+os.mkdir(EMU_LOGS_PATH)
+
+
+def log(what):
+    logs_count = len(os.listdir(EMU_LOGS_PATH))
+    if logs_count > 0:
+        logs_count -= 1
+    l_s = 0
+    if os.path.exists(EMU_LOGS_PATH + '/log_' + str(logs_count)):
+        l_s = os.path.getsize(EMU_LOGS_PATH + '/log_' + str(logs_count))
+    if l_s > 1000000:
+        logs_count += 1
+    l_f = EMU_LOGS_PATH + '/log_' + str(logs_count)
+    with open(l_f, 'a+') as f:
+        f.write(what)
 
 
 def hook_code(uc, address, size, user_data):
     for i in md.disasm(bytes(uc.mem_read(address, size)), address):
         b_addr = i.address - BASE
-        if trace_inst:
-            print("0x%x:\t%s\t%s" % (b_addr, i.mnemonic, i.op_str))
+        log("0x%x:\t%s\t%s" % (b_addr, i.mnemonic, i.op_str))
         if b_addr == 0x00154366:
             uc.reg_write(UC_ARM_REG_R0, 0x42000000)
         if b_addr in memcpy:
@@ -34,8 +53,8 @@ def impl_memcpy():
     src = mu.reg_read(UC_ARM_REG_R1)
     l = mu.reg_read(UC_ARM_REG_R2)
     data = mu.mem_read(src, l)
-    print('memcpy dest 0x%x - src 0x%x - len %d' % (dest, src, l))
-    hexdump(data)
+    log('memcpy dest 0x%x - src 0x%x - len %d' % (dest, src, l))
+    log(hexdump(data, result='return'))
     mu.mem_write(dest, bytes(data))
 
 
@@ -63,13 +82,12 @@ def print_send(uc):
 
 
 def hook_mem_access(uc, access, address, size, value, user_data):
-    if trace_inst:
-        if access == UC_MEM_WRITE:
-            print(">>> Memory is being WRITE at 0x%x, data size = %u, data value = 0x%x"
-                  % (address, size, value))
-        else:
-            print(">>> Memory is being READ at 0x%x, data size = %u, data value = 0x%s"
-                  % (address, size, binascii.hexlify(uc.mem_read(address, size)).decode('utf8')))
+    if access == UC_MEM_WRITE:
+        log(">>> Memory is being WRITE at 0x%x, data size = %u, data value = 0x%x"
+            % (address, size, value))
+    else:
+        log(">>> Memory is being READ at 0x%x, data size = %u, data value = 0x%s"
+            % (address, size, binascii.hexlify(uc.mem_read(address, size)).decode('utf8')))
 
 
 def dafuckingpatches():
