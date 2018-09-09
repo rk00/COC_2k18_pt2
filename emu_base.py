@@ -165,7 +165,7 @@ def dafuckingpatches():
     mu.mem_write(BASE + 0x002A5EFC, NOP * 2)
 
 
-def get_emu():
+def get_emu(stage):
     # Enable VFP instr
     mu.mem_map(0x1000, 1024)
     mu.mem_write(0x1000, binascii.unhexlify(VFP))
@@ -174,9 +174,9 @@ def get_emu():
 
     mu.mem_map(MALLOC_MEM, 1024 * 32)
 
-    files = os.listdir('dumps')
+    files = os.listdir(stage)
     for f in files:
-        with open('dumps/' + f, 'rb') as ff:
+        with open(stage + '/' + f, 'rb') as ff:
             mu.mem_map(int(f, 16), os.path.getsize('dumps/' + f))
             mu.mem_write(int(f, 16), ff.read())
 

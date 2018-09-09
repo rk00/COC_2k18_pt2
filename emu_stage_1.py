@@ -21,7 +21,7 @@ R12 = 0xceefe8d8
 LR = 0xf30b8673
 
 
-mu = emu_base.get_emu()
+mu = emu_base.get_emu('stage1')
 
 mu.reg_write(UC_ARM_REG_R0, R0)
 mu.reg_write(UC_ARM_REG_R1, R1)
