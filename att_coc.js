@@ -55,14 +55,42 @@ function attachSVC() {
                                     Interceptor.attach(base.add(0x2C06D8 + 1), function () {
                                         Interceptor.detachAll();
 
-                                        kang('stage2', this.context);
-
-                                        Interceptor.attach(base.add(0x478E7C), function () {
+                                        Interceptor.attach(base.add(0x00171E20 + 1), function () {
                                             Interceptor.detachAll();
+                                            Interceptor.attach(base.add(0x17242A + 1), function () {
+                                                Interceptor.detachAll();
+                                                var i = 0;
+                                                Interceptor.attach(base.add(0x1721E2 + 1), function () {
+                                                    if (i === 2054) {
+                                                        Interceptor.attach(base.add(0x172782 + 1), function () {
+                                                            Interceptor.detachAll();
+                                                            kang('stage2', this.context);
 
-                                            console.log('login');
-                                            console.log(Memory.readByteArray(this.context.r1, parseInt(this.context.r2)));
+                                                            // we need this r0 for stage 2
+                                                            Interceptor.attach(base.add(0x001E130C + 1), function () {
+                                                                var p = Process.findRangeByAddress(this.context.r0);
+                                                                send(p['base'], Memory.readByteArray(p['base'], p['size']));
+                                                            });
+
+                                                            // we need r4 here for stage 2
+                                                            var givemer4 = Interceptor.attach(base.add(0x0062E92 + 1), function () {
+                                                                var p = Process.findRangeByAddress(this.context.r4);
+                                                                send(p['base'], Memory.readByteArray(p['base'], p['size']));
+                                                                givemer4.detach();
+                                                            });
+
+                                                            Interceptor.attach(base.add(0x478E7C), function () {
+                                                                Interceptor.detachAll();
+                                                                console.log('login');
+                                                                console.log(Memory.readByteArray(this.context.r1, parseInt(this.context.r2)));
+                                                            });
+                                                        });
+                                                    }
+                                                    i++;
+                                                });
+                                            });
                                         });
+
                                     });
                                 });
                             }

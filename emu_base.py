@@ -8,7 +8,7 @@ from unicorn import *
 from unicorn.arm_const import *
 
 
-BASE = 0xd3b5a000
+BASE = 0xd3b8c000
 MALLOC_MEM = 0x100000
 
 md = Cs(CS_ARCH_ARM, CS_MODE_THUMB)
@@ -51,27 +51,31 @@ def log(what):
 
 def hook_code(uc, address, size, user_data):
     global trace
+    b_addr = address - BASE
+    if b_addr == 0x00154366:
+        uc.reg_write(UC_ARM_REG_R0, 0x42000000)
+    elif b_addr in malloc:
+        impl_malloc()
+    elif b_addr in memcpy:
+        impl_memcpy()
+    elif b_addr in memmove:
+        impl_memcpy()
+    elif b_addr in memclr:
+        #impl_memclr()
+        pass
+    elif b_addr == 0x0005BA4A:
+        uc.reg_write(UC_ARM_REG_R0, 0x2)
+    elif b_addr == 0x0048E520:
+        uc.reg_write(UC_ARM_REG_R0, 0x0)
+    elif b_addr == 0x002A5EFC:
+        uc.reg_write(UC_ARM_REG_R0, uc.reg_read(UC_ARM_REG_R0) % uc.reg_read(UC_ARM_REG_R1))
+    elif b_addr == 0x001B36EE:
+        impl_memcpy()
+
+    if not trace:
+        return
     for i in md.disasm(bytes(uc.mem_read(address, size)), address):
-        b_addr = i.address - BASE
-        if trace:
-            log("0x%x:\t%s\t%s" % (b_addr, i.mnemonic, i.op_str))
-        if b_addr == 0x00154366:
-            uc.reg_write(UC_ARM_REG_R0, 0x42000000)
-        elif b_addr in malloc:
-            impl_malloc()
-        elif b_addr in memcpy:
-            impl_memcpy()
-        elif b_addr in memmove:
-            impl_memcpy()
-        elif b_addr in memclr:
-            #impl_memclr()
-            pass
-        elif b_addr == 0x0005BA4A:
-            uc.reg_write(UC_ARM_REG_R0, 0x2)
-        elif b_addr == 0x0048E520 or b_addr == 0x002C084A:
-            uc.reg_write(UC_ARM_REG_R0, 0x0)
-        elif b_addr == 0x002A5EFC:
-            uc.reg_write(UC_ARM_REG_R0, uc.reg_read(UC_ARM_REG_R0) % uc.reg_read(UC_ARM_REG_R1))
+        log("0x%x:\t%s\t%s" % (b_addr, i.mnemonic, i.op_str))
 
 
 def impl_memcpy():
@@ -144,6 +148,9 @@ def dafuckingpatches():
     # memcpy
     for addr in memcpy:
         mu.mem_write(BASE + addr, NOP * 2)
+
+    # j_aeabi_memcpy
+    mu.mem_write(BASE + 0x001B36EE, binascii.unhexlify('704700bf'))
 
     # memclr
     for addr in memclr:
