@@ -1,9 +1,20 @@
 **WIP WIP** 
 
 - use ``att.py`` which will use ``att_coc.js`` to kang memory dumps from your device. 
-- move libg to root folder -> md5: 0fcad6e1094043d284e68cf80ee0d6f2
+#### this is old. kept for backlog
+- (move libg to root folder -> md5: 0fcad6e1094043d284e68cf80ee0d6f2) <-- this is not needed anymore. library is now kanged from memory as well.
 - edit ``emu.py`` to setup lib base and registers according to the output of frida script
 - get a cup of coffee and let the emulation run
+#### this is actual
+- we are dumping 2 stages. Whatever happens before the encryption of the payload and whatever happens right at the beginning of the encryption
+- we are going to use 2 different emulators for the 2 stages. 
+- the output of the frida scripts will print: 
+a) the base of the lib, copy it to ``emu_base``
+b) the nonce
+c) the public key
+d) the registers for stage1 (copy them to ``emu_stage_1`` if you want to run stage1)
+e) the registers for stage2 (copy them to ``emu_stage_2`` if you want to run stage2)
+f) the encrypted login to compare
 
 the last time i pushed the finished implementation, this time, I push the wip so the guys at the crew can follow the works.
 I'm not sure i'll win this, this time. But im going to do my best as usual!
