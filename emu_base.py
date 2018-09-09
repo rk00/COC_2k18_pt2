@@ -177,7 +177,7 @@ def get_emu(stage):
     files = os.listdir(stage)
     for f in files:
         with open(stage + '/' + f, 'rb') as ff:
-            mu.mem_map(int(f, 16), os.path.getsize('dumps/' + f))
+            mu.mem_map(int(f, 16), os.path.getsize(stage + '/' + f))
             mu.mem_write(int(f, 16), ff.read())
 
     dafuckingpatches()
