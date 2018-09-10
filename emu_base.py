@@ -178,6 +178,9 @@ def dafuckingpatches():
     mu.mem_write(BASE + 0x0005BA4A, NOP * 2)
     mu.mem_write(BASE + 0x002A5EFC, NOP * 2)
 
+    # just make sure frida hook code is not there
+    mu.mem_write(BASE + 0x00152608, binascii.unhexlify('F0B503AF2DE9000782B00D46'))
+
 
 def get_emu(stage):
     # Enable VFP instr
