@@ -3,22 +3,22 @@ import emu_base
 from unicorn.arm_const import *
 
 
-PC = 0xd400b782
-SP = 0xce8fe700
-R0 = 0xd400b068
-R1 = 0xd400b068
+PC = 0xd3d45782
+SP = 0xceb7e700
+R0 = 0xd3d45068
+R1 = 0xd3d45068
 R2 = 0xfb4656b2
-R3 = 0xd4549be0
-R4 = 0xcf77da50
+R3 = 0xd4283be0
+R4 = 0xcf7f1828
 R5 = 0x0
 R6 = 0xb4cba6b0
-R7 = 0xce8feeb0
-R8 = 0xcf928040
-R9 = 0xd3564600
+R7 = 0xceb7eeb0
+R8 = 0xd2a24f00
+R9 = 0xd354ed80
 R10 = 0x0
-R11 = 0xce8ff7cc
+R11 = 0xceb7f7cc
 R12 = 0x0
-LR = 0xd41596eb
+LR = 0xd3e936eb
 
 
 mu = emu_base.get_emu('stage2')
