@@ -1,4 +1,13 @@
-**WIP WIP** 
+# I WON ON ARXAN ONCE AGAIN 
+i don't want to sound a bullshit full of himself and with an ego bigger then my house. But this was freakin epic once again
+
+### Now it's up to you folks!
+Recently, i found out that some people around the world love to use my finished work to earn moneys, other one got stuffs up
+thanks to this free work - and suddenly when i pop to them asking info about their "awesome stuffs" they just ask me "hey... who the fuck are you"...
+not that all the stuffs up are actually up mostly thanks to my work and the work of another couple of guys that i know and chat with time to time but.. 
+let's see what those fellas can do without the things ready on an open repository.
+Those sets of scripts are everything you need to reach the solution of the puzzle. There is a chain of posts on my blog, and one will come as well documenting this works and the methodologies used to reach what i was needed to reach
+
 
 - use ``att.py`` which will use ``att_coc.js`` to kang memory dumps from your device. 
 #### this is old. kept for backlog
@@ -22,9 +31,6 @@ g) the encrypted login to compare
 2) shared key gen
 3) encryption of login
 - nonce should happens either in stage 1 or 2 (still needs to be figured out)
-
-the last time i pushed the finished implementation, this time, I push the wip so the guys at the crew can follow the works.
-I'm not sure i'll win this, this time. But im going to do my best as usual!
 
 #### Hey dudes at SC!?
 

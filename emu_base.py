@@ -8,7 +8,7 @@ from unicorn import *
 from unicorn.arm_const import *
 
 
-BASE = 0xd3bd3000
+BASE = 0xc5f63000
 MALLOC_MEM = 0x100000
 
 md = Cs(CS_ARCH_ARM, CS_MODE_THUMB)
@@ -16,13 +16,6 @@ mu = Uc(UC_ARCH_ARM, UC_MODE_THUMB)
 
 VFP = "4ff4700001ee500fbff36f8f4ff08043e8ee103a"
 
-memcpy = [0x00208924, 0x00263382, 0x00246E5E, 0x00246E8E, 0x00267568, 0x001CB000,
-          0x000AECAA, 0x0035A030, 0x0015264A, 0x0005D828, 0x002EC6E8, 0x002EC76C,
-          0x00152674, 0x002C07EC]
-memclr = [0x00208944, 0x00208950, 0x00208958, 0x002632C6, 0x0022D862, 0x001CAFF4,
-          0x00359EF8, 0x00359FEE, 0x002EC586, 0x002EC590, 0x002EC60E, 0x002C07E2]
-malloc = [0x0048E4A6]
-memmove = [0x002C0732, 0x002C0740]
 
 EMU_LOGS_PATH = 'emu_logs'
 
@@ -57,27 +50,21 @@ def hook_code(uc, address, size, user_data):
     if len(trace_dbg) > 10:
         trace_dbg.pop(0)
 
-    if b_addr == 0x00154366:
-        uc.reg_write(UC_ARM_REG_R0, 0x42000000)
-    elif b_addr in malloc:
+    if b_addr == 0x000443EC or b_addr == 0x000445D8:
+        impl_memcpy()
+        uc.reg_write(UC_ARM_REG_PC, uc.reg_read(UC_ARM_REG_LR))
+    elif b_addr == 0x00044434 or b_addr == 0x000444E8:
+        impl_memclr()
+        uc.reg_write(UC_ARM_REG_PC, uc.reg_read(UC_ARM_REG_LR))
+    elif b_addr == 0x000445C0:
         impl_malloc()
-    elif b_addr in memcpy:
-        log(hex(b_addr))
-        impl_memcpy()
-    elif b_addr in memmove:
-        log(hex(b_addr))
-        impl_memcpy()
-    elif b_addr in memclr:
-        #impl_memclr()
-        pass
-    elif b_addr == 0x0005BA4A:
-        uc.reg_write(UC_ARM_REG_R0, 0x2)
-    elif b_addr == 0x0048E520:
-        uc.reg_write(UC_ARM_REG_R0, 0x0)
-    elif b_addr == 0x002A5EFC:
-        uc.reg_write(UC_ARM_REG_R0, uc.reg_read(UC_ARM_REG_R0) % uc.reg_read(UC_ARM_REG_R1))
-    elif b_addr == 0x001B36EE:
-        impl_memcpy()
+        uc.reg_write(UC_ARM_REG_PC, uc.reg_read(UC_ARM_REG_LR))
+    elif b_addr == 0x00045214:
+        impl_gnu_ldivmod_helper()
+        uc.reg_write(UC_ARM_REG_PC, uc.reg_read(UC_ARM_REG_LR))
+    elif b_addr == 0x000444A0:
+        impl_memclr()
+        uc.reg_write(UC_ARM_REG_PC, uc.reg_read(UC_ARM_REG_LR))
 
     if not trace:
         return
@@ -106,6 +93,11 @@ def impl_malloc():
 def impl_memclr():
     mu.mem_write(mu.reg_read(UC_ARM_REG_R0),
                  binascii.unhexlify('00' * mu.reg_read(UC_ARM_REG_R1)))
+
+
+def impl_gnu_ldivmod_helper():
+    mu.reg_write(UC_ARM_REG_R0, int(mu.reg_read(UC_ARM_REG_R0) / mu.reg_read(UC_ARM_REG_R2)))
+    mu.reg_write(UC_ARM_REG_R2, mu.reg_read(UC_ARM_REG_R0) % mu.reg_read(UC_ARM_REG_R2))
 
 
 def print_regs(uc):
@@ -137,51 +129,6 @@ def hook_mem_access(uc, access, address, size, value, user_data):
                 % (address, size, binascii.hexlify(uc.mem_read(address, size)).decode('utf8')))
 
 
-def dafuckingpatches():
-    NOP = binascii.unhexlify('00bf')
-    mu.mem_write(BASE + 0x00154366, NOP * 2)
-
-    # stack check
-    mu.mem_write(BASE + 0x001543D0, NOP * 5)
-    mu.mem_write(BASE + 0x002632BC, NOP * 3)
-    mu.mem_write(BASE + 0x00263396, NOP * 5)
-    mu.mem_write(BASE + 0x00246E52, NOP)
-    mu.mem_write(BASE + 0x00246E56, NOP * 2)
-    mu.mem_write(BASE + 0x00246E96, NOP * 5)
-    mu.mem_write(BASE + 0x0026755E, NOP * 3)
-    mu.mem_write(BASE + 0x002676E2, NOP * 5)
-    mu.mem_write(BASE + 0x00208DBE, NOP * 5)
-
-    # memcpy
-    for addr in memcpy:
-        mu.mem_write(BASE + addr, NOP * 2)
-
-    # j_aeabi_memcpy
-    mu.mem_write(BASE + 0x001B36EE, binascii.unhexlify('704700bf'))
-
-    # memclr
-    for addr in memclr:
-        mu.mem_write(BASE + addr, NOP * 2)
-
-    # malloc
-    for addr in malloc:
-        mu.mem_write(BASE + addr, NOP * 2)
-
-    # memmov
-    for addr in memmove:
-        mu.mem_write(BASE + addr, NOP * 2)
-
-    # jfree
-    mu.mem_write(BASE + 0x0048E520, NOP * 2)
-
-    # ldivmod
-    mu.mem_write(BASE + 0x0005BA4A, NOP * 2)
-    mu.mem_write(BASE + 0x002A5EFC, NOP * 2)
-
-    # just make sure frida hook code is not there
-    mu.mem_write(BASE + 0x00152608, binascii.unhexlify('F0B503AF2DE9000782B00D46'))
-
-
 def get_emu(stage):
     # Enable VFP instr
     mu.mem_map(0x1000, 1024)
@@ -196,8 +143,6 @@ def get_emu(stage):
         with open(stage + '/' + f, 'rb') as ff:
             mu.mem_map(int(f, 16), os.path.getsize(stage + '/' + f))
             mu.mem_write(int(f, 16), ff.read())
-
-    dafuckingpatches()
 
     mu.hook_add(UC_HOOK_CODE, hook_code)
     mu.hook_add(UC_HOOK_MEM_WRITE | UC_HOOK_MEM_READ, hook_mem_access)

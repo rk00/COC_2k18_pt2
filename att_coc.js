@@ -81,14 +81,15 @@ function attachSVC() {
                                                             });
 
                                                             Interceptor.attach(base.add(0x00152608 + 1), function () {
+                                                                Interceptor.detachAll();
                                                                 console.log('doing stage 3');
                                                                 kang('stage3', this.context);
-                                                            });
 
-                                                            Interceptor.attach(base.add(0x478E7C), function () {
-                                                                Interceptor.detachAll();
-                                                                console.log('login');
-                                                                console.log(Memory.readByteArray(this.context.r1, parseInt(this.context.r2)));
+                                                                Interceptor.attach(base.add(0x478E7C), function () {
+                                                                    Interceptor.detachAll();
+                                                                    console.log('login');
+                                                                    console.log(Memory.readByteArray(this.context.r1, parseInt(this.context.r2)));
+                                                                });
                                                             });
                                                         });
                                                     }
@@ -96,7 +97,6 @@ function attachSVC() {
                                                 });
                                             });
                                         });
-
                                     });
                                 });
                             }
@@ -176,9 +176,11 @@ function kang(stage, context) {
 
     for (var r in tdp) {
         var range = tdp[r];
-        Memory.protect(ptr(range['base']), range['size'], 'rwx');
-        send(range['base'],
-            Memory.readByteArray(range['base'], range['size']));
+        try {
+            Memory.protect(ptr(range['base']), range['size'], 'rwx');
+            send(range['base'],
+                Memory.readByteArray(range['base'], range['size']));
+        } catch (e) {}
     }
 
     var libg = Process.findModuleByName('libg.so');

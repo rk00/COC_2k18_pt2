@@ -1,5 +1,3 @@
-stage_1
-stage_2
 .idea
 emu_log
 *.iml
@@ -7,3 +5,11 @@ libg.so
 log
 session
 emu_logs
+.DS_Store
+__pycache__/
+att_coc_test.js
+memmove/
+memcpy/
+stage1/
+stage2/
+stage3/
