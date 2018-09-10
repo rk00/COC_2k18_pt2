@@ -14,7 +14,14 @@ b) the nonce
 c) the public key
 d) the registers for stage1 (copy them to ``emu_stage_1`` if you want to run stage1)
 e) the registers for stage2 (copy them to ``emu_stage_2`` if you want to run stage2)
-f) the encrypted login to compare
+f) the registers for stage3 (copy them to ``emu_stage_3`` if you want to run stage2)
+g) the encrypted login to compare
+
+#### stages
+1) build of private key
+2) shared key gen
+3) encryption of login
+- nonce should happens either in stage 1 or 2 (still needs to be figured out)
 
 the last time i pushed the finished implementation, this time, I push the wip so the guys at the crew can follow the works.
 I'm not sure i'll win this, this time. But im going to do my best as usual!

@@ -8,7 +8,7 @@ from unicorn import *
 from unicorn.arm_const import *
 
 
-BASE = 0xd3b8c000
+BASE = 0xd3bd3000
 MALLOC_MEM = 0x100000
 
 md = Cs(CS_ARCH_ARM, CS_MODE_THUMB)
@@ -32,7 +32,8 @@ if os.path.exists(EMU_LOGS_PATH):
 os.mkdir(EMU_LOGS_PATH)
 
 
-trace = True
+trace = False
+trace_dbg = []
 
 
 def log(what):
@@ -52,13 +53,19 @@ def log(what):
 def hook_code(uc, address, size, user_data):
     global trace
     b_addr = address - BASE
+    trace_dbg.append(hex(b_addr))
+    if len(trace_dbg) > 10:
+        trace_dbg.pop(0)
+
     if b_addr == 0x00154366:
         uc.reg_write(UC_ARM_REG_R0, 0x42000000)
     elif b_addr in malloc:
         impl_malloc()
     elif b_addr in memcpy:
+        log(hex(b_addr))
         impl_memcpy()
     elif b_addr in memmove:
+        log(hex(b_addr))
         impl_memcpy()
     elif b_addr in memclr:
         #impl_memclr()
@@ -193,3 +200,12 @@ def get_emu(stage):
     mu.hook_add(UC_HOOK_MEM_WRITE | UC_HOOK_MEM_READ, hook_mem_access)
 
     return mu
+
+
+def run(mu, start, end):
+    print('starting emulation')
+    try:
+        mu.emu_start(start, end)
+    except Exception as e:
+        print(e)
+        print(trace_dbg)

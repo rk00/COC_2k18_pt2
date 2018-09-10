@@ -40,4 +40,4 @@ mu.reg_write(UC_ARM_REG_SP, SP)
 mu.reg_write(UC_ARM_REG_PC, PC)
 mu.reg_write(UC_ARM_REG_LR, LR)
 
-emu_base.run(mu, PC | 1, (emu_base.BASE + 0x00152608) | 1)
+emu_base.run(mu, PC | 1, (emu_base.BASE + 0x002A5E50) | 1)

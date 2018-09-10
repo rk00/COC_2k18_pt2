@@ -50,11 +50,11 @@ function attachSVC() {
                                 Interceptor.attach(base.add(0x154214 + 1), function () {
                                     Interceptor.detachAll();
 
+                                    console.log('doing stage 1');
                                     kang('stage1', this.context);
 
                                     Interceptor.attach(base.add(0x2C06D8 + 1), function () {
                                         Interceptor.detachAll();
-
                                         Interceptor.attach(base.add(0x00171E20 + 1), function () {
                                             Interceptor.detachAll();
                                             Interceptor.attach(base.add(0x17242A + 1), function () {
@@ -64,6 +64,7 @@ function attachSVC() {
                                                     if (i === 2054) {
                                                         Interceptor.attach(base.add(0x172782 + 1), function () {
                                                             Interceptor.detachAll();
+                                                            console.log('doing stage 2');
                                                             kang('stage2', this.context);
 
                                                             // we need this r0 for stage 2
@@ -77,6 +78,11 @@ function attachSVC() {
                                                                 var p = Process.findRangeByAddress(this.context.r4);
                                                                 send(p['base'], Memory.readByteArray(p['base'], p['size']));
                                                                 givemer4.detach();
+                                                            });
+
+                                                            Interceptor.attach(base.add(0x00152608 + 1), function () {
+                                                                console.log('doing stage 3');
+                                                                kang('stage3', this.context);
                                                             });
 
                                                             Interceptor.attach(base.add(0x478E7C), function () {

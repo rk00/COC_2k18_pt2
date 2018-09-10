@@ -3,21 +3,21 @@ import emu_base
 from unicorn.arm_const import *
 
 
-PC = 0xd3ce0214
-SP = 0xcea7e448
-R0 = 0xd3ce0214
+PC = 0xd3e71214
+SP = 0xce37e448
+R0 = 0xd3e71214
 R1 = 0x0
 R2 = 0x2
 R3 = 0x0
 R4 = 0x0
 R5 = 0x20
-R6 = 0xd35f8894
-R7 = 0xcea7e8d8
+R6 = 0xec07a014
+R7 = 0xce37e8d8
 R8 = 0x20
-R9 = 0xd35f8874
+R9 = 0xec079ff4
 R10 = 0x0
-R11 = 0x5d
-R12 = 0xcea7e8d8
+R11 = 0x49
+R12 = 0xce37e8d8
 LR = 0xf30b8673
 
 
@@ -40,8 +40,4 @@ mu.reg_write(UC_ARM_REG_SP, SP)
 mu.reg_write(UC_ARM_REG_PC, PC)
 mu.reg_write(UC_ARM_REG_LR, LR)
 
-print('starting emulation')
-try:
-    mu.emu_start(PC | 1, (emu_base.BASE + 0x2C06D8) | 1)
-except Exception as e:
-    print(e)
+emu_base.run(mu, PC | 1, (emu_base.BASE + 0x002C06D8) | 1)
